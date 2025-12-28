@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    flashcard_lib::run()
+    let _ = flashcard_lib::run();
 }
