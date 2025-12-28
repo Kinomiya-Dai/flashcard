@@ -1,4 +1,4 @@
 # データベースファイルをビルド監視から除外
 # src-tauri 内の database.db と WAL ファイルを除外
 db/*.db-shm
-db/*.db-walk
+db/*.db-wal
