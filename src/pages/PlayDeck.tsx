@@ -112,25 +112,25 @@ export function PlayDeck() {
   const jumpButtons = getJumpButtons();
 
   const getInstructionText = () => {
-    if (!isFlipped) {
-      return "クリックでめくる";
+    if (isLastCardBack) {
+      return "クリックで終了";
     }
-    return isLastCard ? "クリックで終了" : "クリックで次のカードへ";
+    return "クリックでめくる";
   };
 
   return (
     <div className="h-screen flex flex-col bg-[#1e1f24] text-gray-200">
       <Toaster position="bottom-right" />
 
-      <header className="px-6 py-4 flex items-center justify-between border-b border-[#2a2b31] bg-[#1f2026]">
+      <header className="hidden sm:flex px-6 py-4 items-center justify-between border-b border-[#2a2b31] bg-[#1f2026]">
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-medium text-gray-100">{title}</h2>
           <div className="flex items-center gap-2">
             <span className={`
               px-3 py-1 rounded-full text-sm font-medium
               ${isFlipped 
-                ? "bg-[#3a3c45] text-gray-100" 
-                : "bg-[#444651] text-white"
+                ? "bg-[#eb7e00] text-white" 
+                : "bg-[#3b82f6] text-white"
               }
             `}>
               {isFlipped ? "裏" : "表"}
@@ -152,7 +152,7 @@ export function PlayDeck() {
       </header>
 
       {jumpButtons.length > 0 && (
-        <div className="px-6 py-2 flex items-center gap-2 border-b border-[#2a2b31] bg-[#1f2026]">
+        <div className="hidden sm:flex px-6 py-2 items-center gap-2 border-b border-[#2a2b31] bg-[#1f2026]">
           <span className="text-xs text-gray-400 mr-2">移動:</span>
           {jumpButtons.map((target) => (
             <button
@@ -172,7 +172,7 @@ export function PlayDeck() {
         </div>
       )}
 
-      <div className="w-full h-1 bg-[#2a2b31]">
+      <div className="hidden sm:block w-full h-1 bg-[#2a2b31]">
         <div
           className={`h-full transition-all duration-300 ${
             isLastCardBack ? "bg-gradient-to-r from-[#eb7e00] via-[#eb5556] to-[#c34c83]" : "bg-[#444651]"
@@ -181,12 +181,27 @@ export function PlayDeck() {
         />
       </div>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-2xl flex flex-col items-center">
+          <div className="sm:hidden w-full flex items-center justify-between mb-3 px-1">
+            <span className={`
+              px-2 py-0.5 rounded-full text-xs font-medium
+              ${isFlipped 
+                ? "bg-[#eb7e00] text-white" 
+                : "bg-[#3b82f6] text-white"
+              }
+            `}>
+              {isFlipped ? "裏" : "表"}
+            </span>
+            <span className={`text-xs ${isLastCardBack ? "text-[#eb5556] font-medium" : "text-gray-400"}`}>
+              {currentIndex + 1} / {cards.length}
+            </span>
+          </div>
+
           <Card
             className={`
               w-full
-              min-h-[300px]
+              min-h-[200px] sm:min-h-[300px]
               cursor-pointer
               transition-all duration-300
               ${isLastCardBack
@@ -196,16 +211,25 @@ export function PlayDeck() {
             `}
             onClick={handleCardClick}
           >
-            <CardContent className="h-full min-h-[300px] flex items-center justify-center p-8">
-              <p className="text-xl text-center text-gray-100 whitespace-pre-wrap">
+            <CardContent className="h-full min-h-[200px] sm:min-h-[300px] flex items-center justify-center p-4 sm:p-8">
+              <p className="text-lg sm:text-xl text-center text-gray-100 whitespace-pre-wrap">
                 {isFlipped ? currentCard.back : currentCard.front}
               </p>
             </CardContent>
           </Card>
 
-          <p className={`text-sm mt-6 ${isLastCardBack ? "text-[#eb5556] font-medium" : "text-gray-400"}`}>
+          <p className={`text-xs sm:text-sm mt-4 sm:mt-6 ${isLastCardBack ? "text-[#eb5556] font-medium" : "text-gray-400"}`}>
             {getInstructionText()}
           </p>
+
+          <div className="sm:hidden flex items-center gap-2 mt-4">
+            <Button variant="outline" size="sm" onClick={handleRestart}>
+              <RotateCcw size={14} /> 最初から
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+              <ArrowLeft size={14} /> 終了
+            </Button>
+          </div>
         </div>
       </main>
     </div>
