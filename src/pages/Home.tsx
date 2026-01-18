@@ -1,19 +1,28 @@
 import { useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import {
-  BookOpen,
-  Play,
-  MoreHorizontal,
-  Trash
-} from "lucide-react";
-import { Toaster } from "react-hot-toast";
+import { Play, Trash } from "lucide-react";
+import { Toaster, toast } from "react-hot-toast";
 import { useDecks } from "../hooks/useDecks";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
-  const { decks } = useDecks();
+  const { decks, refetch } = useDecks();
+
+  const handleDeleteDeck = async (deckId: number, deckTitle: string) => {
+    if (!window.confirm(`「${deckTitle}」を削除しますか？\nデッキに含まれるすべてのカードも削除されます。`)) {
+      return;
+    }
+    try {
+      await invoke("delete_deck", { deckId });
+      toast.success("デッキを削除しました");
+      refetch();
+    } catch {
+      toast.error("デッキの削除に失敗しました");
+    }
+  };
 
   const categories = [
     "All",
@@ -178,7 +187,7 @@ function Home() {
                     </button>
 
                     <button
-                      onClick={() => alert("削除")}
+                      onClick={() => handleDeleteDeck(deck.id, deck.title)}
                       className="
                         p-2 rounded-md
                         text-gray-400

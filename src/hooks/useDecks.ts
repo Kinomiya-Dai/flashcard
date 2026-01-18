@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DeckWithProgress } from "../types/deck";
 
 export function useDecks() {
@@ -7,12 +7,17 @@ export function useDecks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchDecks = useCallback(() => {
+    setLoading(true);
     invoke<DeckWithProgress[]>("fetch_decks")
       .then(setDecks)
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
   }, []);
 
-  return { decks, loading, error };
+  useEffect(() => {
+    fetchDecks();
+  }, [fetchDecks]);
+
+  return { decks, loading, error, refetch: fetchDecks };
 }

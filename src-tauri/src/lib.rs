@@ -115,6 +115,18 @@ async fn fetch_decks(pool: State<'_, SqlitePool>) -> Result<Vec<DeckWithProgress
 }
 
 #[tauri::command]
+async fn delete_deck(
+    deck_id: i64,
+    pool: State<'_, Pool<Sqlite>>,
+) -> Result<(), String> {
+    log::debug!("delete_deck start: deck_id={}", deck_id);
+    delete_deck_from_db(deck_id, &pool)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
 async fn get_deck_cards(
     deck_id: i64,
     pool: State<'_, Pool<Sqlite>>,
@@ -187,6 +199,29 @@ async fn save_to_db_deck(payload: SaveDeckPayload, pool: &Pool<Sqlite>,) -> Resu
     Ok(())
 }
 
+
+async fn delete_deck_from_db(deck_id: i64, pool: &Pool<Sqlite>) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query("DELETE FROM t102_cards WHERE deck_id = ?1")
+        .bind(deck_id)
+        .execute(&mut *tx)
+        .await?;
+
+    sqlx::query("DELETE FROM t103_deck_progress WHERE deck_id = ?1")
+        .bind(deck_id)
+        .execute(&mut *tx)
+        .await?;
+
+    sqlx::query("DELETE FROM t101_decks WHERE id = ?1")
+        .bind(deck_id)
+        .execute(&mut *tx)
+        .await?;
+
+    tx.commit().await?;
+
+    Ok(())
+}
 
 async fn update_to_db_card(payload: UpdateDeckPayload, pool: &Pool<Sqlite>,) -> Result<(), sqlx::Error> {
 
@@ -390,7 +425,7 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         .manage(pool)
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_log::Builder::new().build())
-        .invoke_handler(tauri::generate_handler![save_deck,fetch_decks,get_deck_cards,update_deck])
+        .invoke_handler(tauri::generate_handler![save_deck,fetch_decks,get_deck_cards,update_deck,delete_deck])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
     Ok(())
