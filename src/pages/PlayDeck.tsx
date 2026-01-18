@@ -172,7 +172,7 @@ export function PlayDeck() {
         </div>
       )}
 
-      <div className="hidden sm:block w-full h-1 bg-[#2a2b31]">
+      <div className="w-full h-1 bg-[#2a2b31]">
         <div
           className={`h-full transition-all duration-300 ${
             isLastCardBack ? "bg-gradient-to-r from-[#eb7e00] via-[#eb5556] to-[#c34c83]" : "bg-[#444651]"
